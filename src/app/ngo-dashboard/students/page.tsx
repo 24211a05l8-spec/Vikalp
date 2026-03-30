@@ -57,7 +57,7 @@ export default function StudentsDirectory() {
                </thead>
                <tbody className="divide-y divide-slate-100">
                   {filteredStudents.map((student) => (
-                     <tr key={student.id} className="hover:bg-slate-50/50 transition-colors group">
+                     <tr key={student.uid} className="hover:bg-slate-50/50 transition-colors group">
                         <td className="p-6">
                            <div className="flex items-center gap-4">
                               <div className="w-10 h-10 rounded-xl bg-indigo-50 text-primary flex items-center justify-center font-black text-lg">
@@ -72,7 +72,7 @@ export default function StudentsDirectory() {
                         </td>
                         <td className="p-6">
                            <div className="flex flex-wrap gap-2">
-                              {student.interests.map(interest => (
+                              {student.subjects?.map((interest: string) => (
                                  <span key={interest} className="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold">
                                     {interest}
                                  </span>

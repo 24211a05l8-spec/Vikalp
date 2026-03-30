@@ -8,8 +8,8 @@ import { rankVolunteers, StudentMatchData, VolunteerMatchData } from "@/lib/matc
 export default function NgoMatchingDashboard() {
   
   // Format the mock data into the format expected by our utility
-  const formatStudent = (s: any): StudentMatchData => ({ name: s.name, interests: s.interests });
-  const formatVolunteers = (): VolunteerMatchData[] => mockVolunteers.map(v => ({ name: v.name, skills: v.skills }));
+  const formatStudent = (s: any): StudentMatchData => ({ name: s.name, interests: s.subjects || [] });
+  const formatVolunteers = (): VolunteerMatchData[] => mockVolunteers.map(v => ({ name: v.name, skills: v.subjects || [] }));
 
   // We only want to match students who are actively looking for a match or we can show all of them.
   // For the demo, let's show all pending or active students
@@ -48,7 +48,7 @@ export default function NgoMatchingDashboard() {
             const topMatch = matches.length > 0 ? matches[0] : null;
 
             return (
-               <div key={student.id} className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm hover:shadow-xl transition-all group">
+               <div key={student.uid} className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm hover:shadow-xl transition-all group">
                   <div className="flex flex-col lg:flex-row gap-8 items-start">
                      
                      {/* Student Needs Column */}
@@ -65,7 +65,7 @@ export default function NgoMatchingDashboard() {
                         <div className="space-y-2">
                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Needs Help With</p>
                            <div className="flex flex-wrap gap-2">
-                              {student.interests.map(interest => (
+                              {student.subjects?.map((interest: string) => (
                                  <span key={interest} className="px-3 py-1.5 bg-indigo-50 text-primary rounded-xl text-xs font-black border border-indigo-100">
                                     {interest}
                                  </span>

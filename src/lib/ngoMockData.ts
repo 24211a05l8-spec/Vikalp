@@ -76,3 +76,28 @@ export const mockAnnouncements = [
   { id: "a1", title: "New Grade 5 Textbooks Added", date: "2 days ago", audience: "All" },
   { id: "a2", title: "Volunteer Workshop: Using Zoom", date: "1 week ago", audience: "Volunteers" }
 ];
+
+export const performanceData = [
+  { month: "Jan", students: 45, volunteers: 12 },
+  { month: "Feb", students: 58, volunteers: 15 },
+  { month: "Mar", students: 72, volunteers: 18 },
+  { month: "Apr", students: 95, volunteers: 24 },
+  { month: "May", students: 115, volunteers: 32 },
+  { month: "Jun", students: 142, volunteers: 38 },
+];
+
+export const subjectDemandData = [
+  { subject: "Math", demand: 85, volunteers: 20 },
+  { subject: "Science", demand: 65, volunteers: 15 },
+  { subject: "English", demand: 50, volunteers: 12 },
+  { subject: "History", demand: 30, volunteers: 5 },
+  { subject: "Coding", demand: 90, volunteers: 8 },
+];
+
+export const impactTreeData = [
+  { name: "Hyderabad", size: 4500, fill: "#4f46e5" },
+  { name: "Bangalore", size: 3200, fill: "#0ea5e9" },
+  { name: "Mumbai", size: 2800, fill: "#10b981" },
+  { name: "Delhi", size: 1500, fill: "#f59e0b" },
+  { name: "Chennai", size: 900,  fill: "#ec4899" },
+];

@@ -57,7 +57,7 @@ export default function VolunteersDirectory() {
                </thead>
                <tbody className="divide-y divide-slate-100">
                   {filteredVolunteers.map((volunteer) => (
-                     <tr key={volunteer.id} className="hover:bg-slate-50/50 transition-colors group">
+                     <tr key={volunteer.uid} className="hover:bg-slate-50/50 transition-colors group">
                         <td className="p-6">
                            <div className="flex items-center gap-4">
                               <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-lg border border-emerald-100">
@@ -68,7 +68,7 @@ export default function VolunteersDirectory() {
                         </td>
                         <td className="p-6">
                            <div className="flex flex-wrap gap-2">
-                              {volunteer.skills.map(skill => (
+                              {volunteer.subjects?.map((skill: string) => (
                                  <span key={skill} className="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold flex items-center gap-1">
                                     <GraduationCap className="w-3 h-3 opacity-50" />
                                     {skill}
@@ -87,7 +87,7 @@ export default function VolunteersDirectory() {
                         </td>
                         <td className="p-6 text-center">
                            <span className="font-black text-slate-800 text-lg">
-                              {volunteer.studentsAssigned}
+                              {volunteer.studentsAssigned?.length || 0}
                            </span>
                         </td>
                         <td className="p-6">

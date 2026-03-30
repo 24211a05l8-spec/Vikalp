@@ -42,6 +42,10 @@ export default function Navbar() {
           <Link href="#how-it-works" className="text-sm font-bold text-foreground/40 hover:text-primary transition-colors tracking-widest uppercase">How it works</Link>
           <Link href="#impact" className="text-sm font-bold text-foreground/40 hover:text-primary transition-colors tracking-widest uppercase">Impact</Link>
           <Link href="#features" className="text-sm font-bold text-foreground/40 hover:text-primary transition-colors tracking-widest uppercase">Features</Link>
+          
+          <Link href="/ngo-dashboard" className="text-sm font-black text-primary hover:text-indigo-700 transition-colors tracking-widest uppercase flex items-center gap-2 bg-primary/10 px-5 py-2.5 rounded-2xl hover:scale-105 active:scale-95">
+             NGO Portal
+          </Link>
         </div>
 
         {/* Auth Buttons */}
