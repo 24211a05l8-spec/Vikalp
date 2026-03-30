@@ -37,36 +37,7 @@ Real-time tracking of student progress and volunteer engagement for our NGO part
 - Firebase account (for authentication and database)
 - Modern web browser
 
-### Installation
 
-1. **Clone the repository**
-```bash
-git clone https://github.com/24211a05l8-spec/vidyastaan.git
-cd vidyastaan
-```
-
-2. **Install dependencies**
-```bash
-npm install
-```
-
-3. **Set up environment variables**
-Create a `.env.local` file in the root directory with your Firebase configuration:
-```env
-NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-```
-
-4. **Run the development server**
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
 
 ## 📦 Tech Stack
 
