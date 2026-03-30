@@ -75,6 +75,10 @@ export default function AdminDashboardHome() {
               <BarChart3 className="w-5 h-5" />
               Impact Report
            </button>
+           <Link href="/dashboard/admin/manage-admins" className="px-8 py-4 glass bg-primary/10 border-primary/20 rounded-[1.8rem] text-primary font-black flex items-center gap-3 hover:bg-primary/20 hover:scale-105 transition-all shadow-md">
+              <Users className="w-5 h-5" />
+              Manage Admins
+           </Link>
            <Link href="/dashboard/admin/volunteers" className="px-8 py-4 bg-primary text-white rounded-[1.8rem] font-black shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-3">
               Review Pendings
               <ArrowRight className="w-5 h-5" />

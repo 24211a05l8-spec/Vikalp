@@ -41,23 +41,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        // Fetch user role from Firestore
         const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
         if (userDoc.exists()) {
           const userData = userDoc.data();
           setUser({
             uid: firebaseUser.uid,
             email: firebaseUser.email,
-            role: userData.role,
+            role: userData.role || "student",
             name: userData.name || firebaseUser.displayName || "",
           });
         } else {
-          // New user, possibly halfway through registration
+          // New user without role, default to student or wait for onboarding
           setUser({
             uid: firebaseUser.uid,
             email: firebaseUser.email,
-            role: null,
-            name: firebaseUser.displayName || "",
+            role: "student",
+            name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || "Guest",
           });
         }
       } else {

@@ -19,13 +19,13 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // Logic to determine role from email for demo purposes
-      let role: "student" | "volunteer" | "admin" = "student";
+      await login(email, password);
+      
+      // Determine role from email for demo/testing purposes
+      let role: "student" | "volunteer" = "student";
       if (email.includes("volunteer")) role = "volunteer";
-      if (email.includes("admin")) role = "admin";
 
-      await login(email, role);
-      toast.success(`Welcome back! Logged in as ${role}`);
+      toast.success(`Welcome back! Accessing ${role} portal...`);
       router.push(`/dashboard/${role}`);
     } catch (error) {
       toast.error("Failed to login. Please check your credentials.");
