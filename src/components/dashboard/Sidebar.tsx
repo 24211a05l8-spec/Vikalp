@@ -5,13 +5,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
   Home, Calendar, Wrench, BookOpen, Bot, Award, Settings, 
-  Menu, X, LogOut, ChevronRight, Sparkles
+  Menu, X, LogOut, ChevronRight, Sparkles, TrendingUp
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 
 const studentNav = [
   { name: "Home", href: "/dashboard/student", icon: Home },
+  { name: "Progress Tracker", href: "/dashboard/student/progress", icon: TrendingUp },
   { name: "My Sessions", href: "/dashboard/student/sessions", icon: Calendar },
   { name: "Workshops", href: "/dashboard/student/workshops", icon: Wrench },
   { name: "Resources", href: "/dashboard/student/resources", icon: BookOpen },

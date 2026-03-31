@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { getAIResource, AIContent } from "@/lib/ai-assistant";
 import { useAuth } from "@/context/AuthContext";
-import { getStudentProfile, updateStudentProfile } from "@/lib/db";
+import { getStudentProfile, updateStudentProfile, updateTopicProgress, markTopicAsLearned } from "@/lib/db";
 import { NCERT_DATA } from "@/lib/resources/ncert-data";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
@@ -70,20 +70,33 @@ export default function StudyPortalPage() {
   const finish = async () => {
     setIsFinishing(true);
     try {
+      if (!user || !chapter) return;
+
       // Calculate Score
       let correct = 0;
+      const totalQuestions = content?.quiz.length || 0;
       content?.quiz.forEach((q, i) => {
         if (answers[i] === q.answer) correct++;
       });
 
-      // Update Profile (Mock completing)
+      const scorePercentage = totalQuestions > 0 ? Math.round((correct / totalQuestions) * 100) : 0;
+
+      // Update topic progress with score
+      await updateTopicProgress(user!.uid, chapter.id || topicParam, 100, scorePercentage);
+
+      // Mark topic as learned
+      await markTopicAsLearned(user!.uid, chapter.id || topicParam);
+
+      // Update Profile
       await updateStudentProfile(user!.uid, {
-         completedTopics: [params.topic as string]
+         completedTopics: [params.topic as string],
+         lastStudied: new Date().toISOString()
       });
 
       setQuizFinished(true);
-      toast.success("Awesome! You've mastered this topic! 🌟");
+      toast.success("🎉 Awesome! You've mastered this topic! Your progress has been updated.");
     } catch (e) {
+      console.error("Quiz finish error:", e);
       toast.error("Failed to save progress.");
     } finally {
       setIsFinishing(false);

@@ -9,6 +9,7 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { getStudentProfile, getSessionsForUser, getUpcomingWorkshops } from "@/lib/db";
+import ProgressTracker from "@/components/dashboard/ProgressTracker";
 
 export default function StudentDashboardHome() {
   const { user } = useAuth();
@@ -123,6 +124,20 @@ export default function StudentDashboardHome() {
           </div>
         ))}
       </div>
+
+      {/* Learning Progress Tracker Section */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-primary/10 rounded-2xl">
+            <TrendingUp className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-3xl font-black tracking-tighter">Learning Progress</h2>
+            <p className="text-foreground/40 font-bold text-xs uppercase tracking-[0.2em]">Track your learning journey</p>
+          </div>
+        </div>
+        <ProgressTracker />
+      </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         {/* Main Content (Left) */}

@@ -9,7 +9,7 @@ import {
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
-import { getStudentProfile, updateStudentProfile } from "@/lib/db";
+import { getStudentProfile, updateStudentProfile, updateTopicProgress } from "@/lib/db";
 import { getQuizForStudent, QuizQuestion } from "@/lib/quiz-generator";
 
 export default function DiagnosticQuizPage() {
@@ -91,14 +91,22 @@ export default function DiagnosticQuizPage() {
         }))
       };
 
-      // 3. Save to Profile
+      // 3. Update student progress for each subject/question
+      for (const question of questions) {
+        const isCorrect = answers[question.id] === question.correctAnswer;
+        const score = isCorrect ? 100 : 0;
+        await updateTopicProgress(user!.uid, question.id, 80, score);
+      }
+
+      // 4. Save to Profile
       await updateStudentProfile(user!.uid, {
         lastAssessment: assessmentData,
-        assessmentComplete: true
+        assessmentComplete: true,
+        lastStudied: new Date().toISOString()
       });
 
       setQuizComplete(true);
-      toast.success("Assessment Complete! You're a star! 🌟");
+      toast.success("Assessment Complete! Your progress has been updated! 🌟");
     } catch (e) {
       console.error("Finish quiz error:", e);
       toast.error("Failed to save your progress.");

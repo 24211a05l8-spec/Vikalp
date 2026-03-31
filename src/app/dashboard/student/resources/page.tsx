@@ -4,13 +4,14 @@ import React, { useState, useEffect } from "react";
 import { 
   BookOpen, Sparkles, ArrowRight, Search, 
   GraduationCap, LayoutGrid, List, Filter,
-  ChevronRight, Bookmark, Clock, CheckCircle
+  ChevronRight, Bookmark, Clock, CheckCircle, Zap, Plus, Check, RefreshCw
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { getStudentProfile } from "@/lib/db";
+import { getStudentProfile, getStudentProgress, startLearningTopic, markTopicAsLearned } from "@/lib/db";
 import { NCERT_DATA } from "@/lib/resources/ncert-data";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 export default function ResourcesPage() {
   const { user } = useAuth();
@@ -18,16 +19,109 @@ export default function ResourcesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSubject, setSelectedSubject] = useState<string>("All");
   const [loading, setLoading] = useState(true);
+  const [learningTopics, setLearningTopics] = useState<Set<string>>(new Set());
+  const [completedTopics, setCompletedTopics] = useState<Set<string>>(new Set());
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const refreshProgress = async () => {
+    setIsRefreshing(true);
+    try {
+      if (!user) return;
+      const progress = await getStudentProgress(user!.uid);
+      if (progress) {
+        const learning = new Set(progress.learningTopics?.map((t: any) => t.chapterId) || []);
+        const completed = new Set(progress.completedTopics?.map((t: any) => t.chapterId) || []);
+        setLearningTopics(learning);
+        setCompletedTopics(completed);
+        toast.success("✅ Progress updated!");
+      }
+    } catch (error) {
+      console.error("Failed to refresh:", error);
+      toast.error("Failed to refresh progress");
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
     async function load() {
       const profile = await getStudentProfile(user!.uid);
       if (profile?.grade) setGrade(profile.grade);
+      
+      // Load current progress
+      const progress = await getStudentProgress(user.uid);
+      if (progress) {
+        const learning = new Set(progress.learningTopics?.map((t: any) => t.chapterId) || []);
+        const completed = new Set(progress.completedTopics?.map((t: any) => t.chapterId) || []);
+        setLearningTopics(learning);
+        setCompletedTopics(completed);
+      }
       setLoading(false);
     }
     load();
+    
+    // Refresh progress every 2 seconds to catch quiz completions
+    const interval = setInterval(load, 2000);
+    return () => clearInterval(interval);
   }, [user]);
+
+  const handleStartLearning = async (chapter: any) => {
+    if (!user) {
+      toast.error("Please log in first");
+      return;
+    }
+
+    if (completedTopics.has(chapter.id)) {
+      toast.error("You've already completed this topic!");
+      return;
+    }
+
+    if (learningTopics.has(chapter.id)) {
+      toast.error("You're already learning this topic!");
+      return;
+    }
+    
+    setActionLoading(chapter.id);
+    try {
+      console.log("Starting learning for chapter:", chapter);
+      await startLearningTopic(user!.uid, chapter.id, chapter);
+      setLearningTopics(new Set([...learningTopics, chapter.id]));
+      toast.success(`✅ Started learning "${chapter.title}"!`);
+    } catch (error) {
+      console.error("Failed to start learning:", error);
+      toast.error("Failed to start learning. Please try again.");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleMarkAsLearned = async (chapter: any) => {
+    if (!user) {
+      toast.error("Please log in first");
+      return;
+    }
+
+    if (!learningTopics.has(chapter.id)) {
+      toast.error("This topic is not in your learning list!");
+      return;
+    }
+    
+    setActionLoading(chapter.id);
+    try {
+      console.log("Marking as learned for chapter:", chapter);
+      await markTopicAsLearned(user!.uid, chapter.id);
+      setLearningTopics(new Set([...learningTopics].filter(id => id !== chapter.id)));
+      setCompletedTopics(new Set([...completedTopics, chapter.id]));
+      toast.success(`🎉 Great! "${chapter.title}" marked as completed!`);
+    } catch (error) {
+      console.error("Failed to mark as learned:", error);
+      toast.error("Failed to mark as completed. Please try again.");
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
   const subjects = grade === 5 ? ["Telugu", "Hindi", "English", "Maths", "Science", "Social"] : ["Math", "Science", "English"];
   const allChapters = NCERT_DATA[grade] || {};
@@ -77,6 +171,14 @@ export default function ResourcesPage() {
               title="Switch Grade"
             >
               <Filter className="w-5 h-5" />
+           </button>
+           <button
+              onClick={refreshProgress}
+              disabled={isRefreshing}
+              className="p-4 glass bg-white/60 rounded-2xl text-primary hover:bg-white disabled:opacity-50 transition-all shadow-sm"
+              title="Refresh Progress"
+            >
+              <RefreshCw className={cn("w-5 h-5", isRefreshing && "animate-spin")} />
            </button>
         </div>
       </header>
@@ -148,12 +250,76 @@ export default function ResourcesPage() {
                     {ch.description}
                  </p>
 
-                 <div className="flex flex-wrap gap-2 mb-8">
+                 {/* Learning Status Indicator */}
+                 <div className="flex items-center gap-2 mb-6 flex-wrap">
                     {ch.pdfUrl && (
-                      <a href={ch.pdfUrl} target="_blank" rel="noopener noreferrer" className="px-4 py-2.5 bg-indigo-50/80 text-indigo-600 rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-indigo-100 transition-colors border border-indigo-100/50">
-                        <BookOpen className="w-4 h-4" />
-                        Textbook PDF
+                      <a href={ch.pdfUrl} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 bg-indigo-50/80 text-indigo-600 rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-indigo-100 transition-colors border border-indigo-100/50">
+                        <BookOpen className="w-3.5 h-3.5" />
+                        PDF
                       </a>
+                    )}
+                    {completedTopics.has(ch.id) && (
+                      <div className="px-3 py-1.5 bg-green-50 text-green-700 rounded-lg text-xs font-bold flex items-center gap-1.5 border border-green-200">
+                        <CheckCircle className="w-3.5 h-3.5" />
+                        Completed
+                      </div>
+                    )}
+                    {learningTopics.has(ch.id) && !completedTopics.has(ch.id) && (
+                      <div className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold flex items-center gap-1.5 border border-blue-200 animate-pulse">
+                        <Clock className="w-3.5 h-3.5" />
+                        Learning
+                      </div>
+                    )}
+                 </div>
+
+                 {/* Learning Tracking Buttons */}
+                 <div className="flex gap-3 mb-8">
+                    {!learningTopics.has(ch.id) && !completedTopics.has(ch.id) && (
+                      <button
+                        onClick={() => handleStartLearning(ch)}
+                        disabled={actionLoading === ch.id}
+                        className="flex-1 px-4 py-3 bg-primary text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-primary/90 disabled:opacity-50 transition-all shadow-lg shadow-primary/20 hover:shadow-lg hover:shadow-primary/40"
+                      >
+                        {actionLoading === ch.id ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            Starting...
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="w-5 h-5" />
+                            Start Learning
+                          </>
+                        )}
+                      </button>
+                    )}
+                    {learningTopics.has(ch.id) && !completedTopics.has(ch.id) && (
+                      <button
+                        onClick={() => handleMarkAsLearned(ch)}
+                        disabled={actionLoading === ch.id}
+                        className="flex-1 px-4 py-3 bg-green-600 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-green-700 disabled:opacity-50 transition-all shadow-lg shadow-green-600/20 hover:shadow-lg hover:shadow-green-600/40"
+                      >
+                        {actionLoading === ch.id ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            Marking...
+                          </>
+                        ) : (
+                          <>
+                            <Check className="w-5 h-5" />
+                            Mark as Completed
+                          </>
+                        )}
+                      </button>
+                    )}
+                    {completedTopics.has(ch.id) && (
+                      <button
+                        disabled
+                        className="flex-1 px-4 py-3 bg-green-100 text-green-700 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-not-allowed"
+                      >
+                        <CheckCircle className="w-5 h-5" />
+                        Completed
+                      </button>
                     )}
                  </div>
 
